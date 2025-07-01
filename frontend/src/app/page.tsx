@@ -100,7 +100,7 @@ export default function Home() {
           백엔드: <code className="bg-muted px-2 py-1 rounded">http://localhost:3001</code> | 
           프론트엔드: <code className="bg-muted px-2 py-1 rounded">http://localhost:3000</code>
         </p>
-      </div>
+        </div>
     </div>
   );
 }
