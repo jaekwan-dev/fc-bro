@@ -16,6 +16,15 @@ export const members: Member[] = [
     totalGames: 15,
     attendance: 12,
     profileUrl: "",
+    injuries: [
+      {
+        id: "1",
+        injuryName: "무릎 인대 손상",
+        startDate: "2024-11-01",
+        endDate: "2024-12-15",
+        isActive: true
+      }
+    ],
     createdAt: new Date(),
     updatedAt: new Date(),
   },
@@ -50,6 +59,15 @@ export const members: Member[] = [
     totalGames: 12,
     attendance: 10,
     profileUrl: "",
+    injuries: [
+      {
+        id: "2",
+        injuryName: "발목 염좌",
+        startDate: "2024-11-15",
+        endDate: "2024-12-20",
+        isActive: true
+      }
+    ],
     createdAt: new Date(),
     updatedAt: new Date(),
   },

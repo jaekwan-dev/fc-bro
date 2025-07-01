@@ -18,6 +18,7 @@ export default function Home() {
   const [showTeamRoster, setShowTeamRoster] = useState(false)
   const [search, setSearch] = useState("")
   const [positionFilter, setPositionFilter] = useState<string>("ALL")
+  const [injuryFilter, setInjuryFilter] = useState<boolean>(false)
   const [showAddForm, setShowAddForm] = useState(false)
   const [showEditForm, setShowEditForm] = useState(false)
   const [selectedMember, setSelectedMember] = useState<Member | null>(null)
@@ -86,7 +87,8 @@ export default function Home() {
   const filtered = membersData.filter((m) => {
     const matchesSearch = m.name.includes(search) || m.mainPosition.includes(search)
     const matchesPosition = positionFilter === "ALL" || m.mainPosition === positionFilter
-    return matchesSearch && matchesPosition
+    const matchesInjury = !injuryFilter || (m.injuries && m.injuries.length > 0 && m.injuries.some(injury => injury.isActive))
+    return matchesSearch && matchesPosition && matchesInjury
   })
 
   const handleAddSuccess = () => {
@@ -381,11 +383,50 @@ export default function Home() {
                     {position === "ALL" ? "전체" : position}
                   </Button>
                 ))}
+                <Button
+                  size="sm"
+                  variant={injuryFilter ? "default" : "outline"}
+                  onClick={() => setInjuryFilter(!injuryFilter)}
+                  className={`text-xs px-3 h-8 flex-shrink-0 ${
+                    injuryFilter 
+                      ? "bg-red-600 hover:bg-red-700 text-white border-red-600" 
+                      : "bg-red-50 hover:bg-red-100 text-red-700 border-red-200"
+                  }`}
+                >
+                  부상자
+                </Button>
               </div>
             </div>
           </div>
 
           <div className="px-6 py-3">
+            {/* 필터 상태 표시 */}
+            {(positionFilter !== "ALL" || injuryFilter || search) && (
+              <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                <div className="text-sm text-blue-800 font-medium mb-2">적용된 필터:</div>
+                <div className="flex flex-wrap gap-2">
+                  {positionFilter !== "ALL" && (
+                    <Badge variant="secondary" className="text-xs">
+                      포지션: {positionFilter}
+                    </Badge>
+                  )}
+                  {injuryFilter && (
+                    <Badge variant="destructive" className="text-xs bg-red-100 text-red-700 border-red-300">
+                      부상자만
+                    </Badge>
+                  )}
+                  {search && (
+                    <Badge variant="outline" className="text-xs">
+                      검색: &quot;{search}&quot;
+                    </Badge>
+                  )}
+                </div>
+                <div className="mt-2 text-xs text-blue-600">
+                  총 {filtered.length}명의 선수가 표시됩니다
+                </div>
+              </div>
+            )}
+            
             {isLoading ? (
               <div className="text-center py-8">로딩 중...</div>
             ) : filtered.length > 0 ? (
