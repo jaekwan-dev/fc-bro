@@ -1,10 +1,12 @@
 "use client";
 import { useState } from "react";
 import { MemberCard } from "@/components/MemberCard";
+import { Member } from "@/types/member";
 
 // 샘플 팀원 데이터
-const members = [
+const members: Member[] = [
   {
+    id: "1",
     name: "홍길동",
     age: 25,
     backNumber: 10,
@@ -12,10 +14,14 @@ const members = [
     subPosition: "MF",
     mainLevel: 4,
     subLevel: 3,
-    attendance: "3/10",
+    totalGames: 10,
+    attendance: 3,
     profileUrl: "",
+    createdAt: new Date(),
+    updatedAt: new Date(),
   },
   {
+    id: "2",
     name: "김철수",
     age: 28,
     backNumber: 1,
@@ -23,8 +29,11 @@ const members = [
     subPosition: "DF",
     mainLevel: 5,
     subLevel: 2,
-    attendance: "7/10",
+    totalGames: 10,
+    attendance: 7,
     profileUrl: "",
+    createdAt: new Date(),
+    updatedAt: new Date(),
   },
 ];
 
@@ -69,7 +78,7 @@ export default function Home() {
           </div>
           <div className="w-full max-w-md">
             {members.map((member) => (
-              <MemberCard key={member.name} member={member} />
+              <MemberCard key={member.id} member={member} />
             ))}
           </div>
         </section>
