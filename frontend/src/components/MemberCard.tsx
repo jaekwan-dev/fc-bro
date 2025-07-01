@@ -67,7 +67,7 @@ export function MemberCard({ member }: MemberCardProps) {
           <div className="ml-4">
             <div 
               className="text-5xl font-black text-muted-foreground/20 leading-none select-none tracking-tighter" 
-              style={{fontFamily: '"JetBrains Mono", "Consolas", "Monaco", monospace'}}
+              style={{fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif'}}
             >
               {String(member.backNumber).padStart(2, '0')}
             </div>
