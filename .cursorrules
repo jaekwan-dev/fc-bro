@@ -1,0 +1,70 @@
+# FC-BRO 프로젝트 Cursor Rules
+
+## 개발 환경
+- OS: Windows 10/11
+- Shell: PowerShell (NOT bash)
+- 프로젝트 구조: 모노레포 (backend + frontend)
+
+## PowerShell 명령어 실행 규칙
+- PowerShell에서는 `&&` 연산자가 지원되지 않음
+- 여러 명령어를 연속 실행할 때는 각각 별도 명령으로 실행
+- 예시:
+  ```powershell
+  # ❌ 잘못된 방법
+  cd frontend && npm run build
+  
+  # ✅ 올바른 방법
+  cd frontend
+  npm run build
+  ```
+
+## 프로젝트 구조
+```
+fc-bro/
+├── backend/          # NestJS (포트: 3001)
+├── frontend/         # Next.js (포트: 3000)
+├── package.json      # 루트 패키지 설정
+└── .cursorrules      # 이 파일
+```
+
+## 코딩 스타일
+- 언어: 한국어로 응답
+- TypeScript 사용 (엄격한 타입 체크)
+- 모바일 퍼스트 UI/UX
+- ShadCN UI 컴포넌트 활용
+
+## 개발 워크플로우
+1. 백엔드 API 먼저 개발
+2. 프론트엔드에서 API 연동
+3. 타입 안전성 확보
+4. 빌드 테스트 후 커밋
+
+## 명령어 패턴
+### 개발 서버 실행
+```powershell
+# 백엔드
+cd backend
+npm run start:dev
+
+# 프론트엔드 (새 터미널)
+cd frontend
+npm run dev
+```
+
+### 빌드 테스트
+```powershell
+cd frontend
+npm run build
+```
+
+### Git 작업
+```powershell
+git add .
+git commit -m "커밋 메시지"
+git push
+```
+
+## 주의사항
+- PowerShell 특성상 명령어 체이닝(`&&`) 사용 금지
+- 각 명령어는 별도로 실행
+- 디렉토리 이동 후 명령어 실행하는 패턴 사용
