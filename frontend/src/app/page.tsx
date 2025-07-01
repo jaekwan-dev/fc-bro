@@ -1,112 +1,89 @@
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+"use client";
+import { useState } from "react";
+import { MemberCard } from "@/components/MemberCard";
+
+// 샘플 팀원 데이터
+const members = [
+  {
+    name: "홍길동",
+    age: 25,
+    backNumber: 10,
+    mainPosition: "FW",
+    subPosition: "MF",
+    mainLevel: 4,
+    subLevel: 3,
+    attendance: "3/10",
+    profileUrl: "",
+  },
+  {
+    name: "김철수",
+    age: 28,
+    backNumber: 1,
+    mainPosition: "GK",
+    subPosition: "DF",
+    mainLevel: 5,
+    subLevel: 2,
+    attendance: "7/10",
+    profileUrl: "",
+  },
+];
 
 export default function Home() {
+  const [slide, setSlide] = useState(0); // 0: 일정(비어있음), 1: 팀원카드
+
   return (
-    <div className="container mx-auto p-8 max-w-4xl">
-      <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold mb-4">FC-BRO 풀스택 애플리케이션</h1>
-        <p className="text-lg text-muted-foreground">
-          NestJS + Next.js + ShadCN + Tailwind CSS
-        </p>
+    <div className="relative min-h-screen bg-gradient-to-b from-pink-100 to-white overflow-x-hidden">
+      {/* 슬라이드 영역 */}
+      <div
+        className="flex transition-transform duration-300"
+        style={{ transform: `translateX(-${slide * 100}vw)` }}
+      >
+        {/* 첫 화면: 팀명 + 일정(비워둠) */}
+        <section className="w-screen flex flex-col items-center justify-start pt-12 px-4">
+          <div className="text-4xl sm:text-5xl font-extrabold tracking-tight text-purple-900 mb-2 text-center drop-shadow-lg">
+            FC BRO
+          </div>
+          <div className="text-lg font-bold text-purple-400 mb-8 text-center">SOCCER TEAM</div>
+          {/* 일정 영역 (비워둠) */}
+          <div className="w-full h-40 bg-white/60 rounded-xl flex items-center justify-center text-gray-400 text-xl font-bold border-2 border-dashed border-gray-300">
+            일정 정보는 추후 추가 예정입니다
+          </div>
+          <button
+            className="mt-10 text-sm text-purple-700 font-bold underline"
+            onClick={() => setSlide(1)}
+          >
+            → 팀원 카드 보기
+          </button>
+        </section>
+        {/* 두 번째 화면: 팀원 카드 목록 */}
+        <section className="w-screen px-4 pt-8 pb-24 flex flex-col items-center bg-gradient-to-b from-pink-100 to-white">
+          <div className="flex items-center justify-between w-full mb-4">
+            <button
+              className="text-purple-700 font-bold text-lg"
+              onClick={() => setSlide(0)}
+            >
+              ←
+            </button>
+            <div className="font-bold text-xl text-purple-900">팀원 목록</div>
+            <div style={{ width: 32 }} /> {/* placeholder for alignment */}
+          </div>
+          <div className="w-full max-w-md">
+            {members.map((member) => (
+              <MemberCard key={member.name} member={member} />
+            ))}
+          </div>
+        </section>
       </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-        <Card>
-          <CardHeader>
-            <CardTitle>🚀 백엔드 (NestJS)</CardTitle>
-            <CardDescription>
-              TypeScript 기반의 확장 가능한 Node.js 서버
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ul className="list-disc list-inside space-y-2 text-sm">
-              <li>RESTful API</li>
-              <li>TypeScript 지원</li>
-              <li>의존성 주입</li>
-              <li>Render 배포 준비</li>
-            </ul>
-            <Button className="mt-4 w-full" variant="outline">
-              API 문서 보기
-            </Button>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>🎨 프론트엔드 (Next.js)</CardTitle>
-            <CardDescription>
-              현대적인 React 프레임워크 + 아름다운 UI
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ul className="list-disc list-inside space-y-2 text-sm">
-              <li>Next.js 15 (App Router)</li>
-              <li>ShadCN/UI 컴포넌트</li>
-              <li>Tailwind CSS</li>
-              <li>Vercel 배포 준비</li>
-            </ul>
-            <Button className="mt-4 w-full">
-              컴포넌트 탐색하기
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle>ShadCN 컴포넌트 데모</CardTitle>
-          <CardDescription>
-            이미 설치된 컴포넌트들을 확인해보세요
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">이름</Label>
-              <Input id="name" placeholder="이름을 입력하세요" />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="email">이메일</Label>
-              <Input id="email" type="email" placeholder="이메일을 입력하세요" />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="message">메시지</Label>
-            <Textarea 
-              id="message" 
-              placeholder="메시지를 입력하세요..." 
-              rows={4}
-            />
-          </div>
-
-          <div className="flex gap-4">
-            <Button>전송하기</Button>
-            <Button variant="outline">초기화</Button>
-            <Button variant="destructive">삭제</Button>
-            <Button variant="ghost">취소</Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      <div className="text-center text-sm text-muted-foreground">
-        <p>🔧 개발 모드에서 실행 중입니다.</p>
-        <p className="mt-2">
-          백엔드: <code className="bg-muted px-2 py-1 rounded">
-            {process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}
-          </code> | 
-          프론트엔드: <code className="bg-muted px-2 py-1 rounded">
-            {typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'}
-          </code>
-        </p>
-        <p className="mt-2">
-          API 상태: <span className="text-green-600">연결됨</span>
-        </p>
+      {/* 슬라이드 인디케이터 */}
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
+        <button
+          className={`w-3 h-3 rounded-full ${slide === 0 ? "bg-purple-700" : "bg-gray-300"}`}
+          onClick={() => setSlide(0)}
+        />
+        <button
+          className={`w-3 h-3 rounded-full ${slide === 1 ? "bg-purple-700" : "bg-gray-300"}`}
+          onClick={() => setSlide(1)}
+        />
       </div>
     </div>
   );
