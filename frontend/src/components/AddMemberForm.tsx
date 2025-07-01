@@ -21,7 +21,7 @@ export function AddMemberForm({ onSuccess, onCancel }: AddMemberFormProps) {
     age: 20,
     backNumber: 1,
     mainPosition: "MF",
-    subPosition: "",
+    subPosition: [],
     mainLevel: "아마추어",
     subLevel: 2,
     profileUrl: "",
@@ -41,6 +41,21 @@ export function AddMemberForm({ onSuccess, onCancel }: AddMemberFormProps) {
       setError(err instanceof Error ? err.message : "팀원 추가에 실패했습니다.");
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleSubPositionChange = (position: string, checked: boolean) => {
+    const currentSubPositions = formData.subPosition || [];
+    if (checked) {
+      setFormData({
+        ...formData,
+        subPosition: [...currentSubPositions, position]
+      });
+    } else {
+      setFormData({
+        ...formData,
+        subPosition: currentSubPositions.filter(pos => pos !== position)
+      });
     }
   };
 
@@ -108,18 +123,23 @@ export function AddMemberForm({ onSuccess, onCancel }: AddMemberFormProps) {
             </select>
           </div>
           <div>
-            <Label htmlFor="subPosition">부 포지션</Label>
-            <select
-              id="subPosition"
-              value={formData.subPosition || ""}
-              onChange={(e) => setFormData({ ...formData, subPosition: e.target.value || undefined })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-            >
-              <option value="">선택안함</option>
-              {positions.map((pos) => (
-                <option key={pos} value={pos}>{pos}</option>
+            <Label>부 포지션 (다중 선택 가능)</Label>
+            <div className="space-y-2 mt-2">
+              {positions.filter(pos => pos !== formData.mainPosition).map((pos) => (
+                <div key={pos} className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id={`sub-${pos}`}
+                    checked={formData.subPosition?.includes(pos) || false}
+                    onChange={(e) => handleSubPositionChange(pos, e.target.checked)}
+                    className="w-4 h-4"
+                  />
+                  <Label htmlFor={`sub-${pos}`} className="text-sm cursor-pointer">
+                    {pos}
+                  </Label>
+                </div>
               ))}
-            </select>
+            </div>
           </div>
         </div>
 

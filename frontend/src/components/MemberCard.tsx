@@ -8,7 +8,7 @@ interface MemberCardProps {
 }
 
 export function MemberCard({ member }: MemberCardProps) {
-  const subPosition = member.subPosition ? member.subPosition : null
+  const subPositions = member.subPosition && member.subPosition.length > 0 ? member.subPosition : null
 
   return (
     <Card className="mb-3 hover:shadow-md transition-shadow duration-200">
@@ -34,12 +34,16 @@ export function MemberCard({ member }: MemberCardProps) {
                   </Badge>
                 </div>
 
-                {subPosition && (
+                {subPositions && (
                   <div className="space-y-1">
                     <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">부포지션</div>
-                    <Badge variant="outline" className="text-xs font-medium">
-                      {subPosition}
-                    </Badge>
+                    <div className="flex flex-wrap gap-1">
+                      {subPositions.map((pos, index) => (
+                        <Badge key={index} variant="outline" className="text-xs font-medium">
+                          {pos}
+                        </Badge>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>

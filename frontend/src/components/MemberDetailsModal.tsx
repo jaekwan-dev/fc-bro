@@ -121,7 +121,7 @@ export function MemberDetailsModal({
                     <span className="font-medium">주 포지션:</span> {member.mainPosition} (Lv.{member.mainLevel})
                   </div>
                   <div>
-                    <span className="font-medium">부 포지션:</span> {member.subPosition || "없음"} 
+                    <span className="font-medium">부 포지션:</span> {member.subPosition?.length > 0 ? member.subPosition.join(", ") : "없음"} 
                     {member.subLevel && ` (Lv.${member.subLevel})`}
                   </div>
                 </div>
@@ -200,18 +200,30 @@ export function MemberDetailsModal({
                   </select>
                 </div>
                 <div>
-                  <Label htmlFor="subPosition">부 포지션</Label>
-                  <select
-                    id="subPosition"
-                    value={formData.subPosition || ""}
-                    onChange={(e) => setFormData({ ...formData, subPosition: e.target.value || undefined })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-                  >
-                    <option value="">선택안함</option>
-                    {positions.map((pos) => (
-                      <option key={pos} value={pos}>{pos}</option>
+                  <Label>부 포지션 (다중 선택)</Label>
+                  <div className="space-y-2 mt-2">
+                    {positions.filter(pos => pos !== formData.mainPosition).map((pos) => (
+                      <div key={pos} className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          id={`modal-sub-${pos}`}
+                          checked={formData.subPosition?.includes(pos) || false}
+                          onChange={(e) => {
+                            const current = formData.subPosition || [];
+                            if (e.target.checked) {
+                              setFormData({ ...formData, subPosition: [...current, pos] });
+                            } else {
+                              setFormData({ ...formData, subPosition: current.filter(p => p !== pos) });
+                            }
+                          }}
+                          className="w-4 h-4"
+                        />
+                        <Label htmlFor={`modal-sub-${pos}`} className="text-sm cursor-pointer">
+                          {pos}
+                        </Label>
+                      </div>
                     ))}
-                  </select>
+                  </div>
                 </div>
               </div>
             </div>

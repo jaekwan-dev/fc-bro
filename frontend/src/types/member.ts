@@ -4,7 +4,7 @@ export interface Member {
   age: number
   backNumber: number
   mainPosition: string
-  subPosition: string
+  subPosition: string[]
   mainLevel: "프로" | "세미프로" | "아마추어" | "루키"
   subLevel: number
   totalGames: number
@@ -19,7 +19,7 @@ export interface CreateMemberDto {
   age: number;
   backNumber: number;
   mainPosition: string;
-  subPosition?: string;
+  subPosition?: string[];
   mainLevel: "프로" | "세미프로" | "아마추어" | "루키";
   subLevel?: number;
   profileUrl?: string;
@@ -30,7 +30,7 @@ export interface UpdateMemberDto {
   age?: number;
   backNumber?: number;
   mainPosition?: string;
-  subPosition?: string;
+  subPosition?: string[];
   mainLevel?: "프로" | "세미프로" | "아마추어" | "루키";
   subLevel?: number;
   profileUrl?: string;
