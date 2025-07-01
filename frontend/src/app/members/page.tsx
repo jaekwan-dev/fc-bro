@@ -107,8 +107,6 @@ export default function MemberListPage() {
             <MemberCard 
               key={member.id} 
               member={member} 
-              onUpdate={fetchMembers}
-              onDelete={fetchMembers}
             />
           ))}
           {filtered.length === 0 && (
