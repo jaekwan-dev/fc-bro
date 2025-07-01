@@ -10,7 +10,8 @@
     "build:backend": "cd backend && npm run build",
     "build:frontend": "cd frontend && npm run build",
     "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install",
-    "clean": "rimraf backend/dist frontend/.next"
+    "clean": "rimraf backend/dist frontend/.next",
+    "vercel-build": "cd frontend && npm install && npm run build"
   },
   "devDependencies": {
     "concurrently": "^8.2.2",

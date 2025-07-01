@@ -1,8 +1,8 @@
 {
   "version": 2,
   "name": "fc-bro-frontend",
-  "buildCommand": "cd frontend && npm install && npm run build",
+  "buildCommand": "npm run vercel-build",
   "outputDirectory": "frontend/.next",
-  "installCommand": "cd frontend && npm install",
+  "installCommand": "npm install",
   "framework": "nextjs"
 } 
