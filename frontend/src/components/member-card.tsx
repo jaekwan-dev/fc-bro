@@ -3,9 +3,12 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 interface MemberCardProps {
   member: Member
+  onUpdate?: () => void
+  onDelete?: () => void
 }
 
-export function MemberCard({ member }: MemberCardProps) {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function MemberCard({ member, onUpdate, onDelete }: MemberCardProps) {
   const getPositionColor = (position: string) => {
     switch (position) {
       case "GK":
@@ -70,4 +73,4 @@ export function MemberCard({ member }: MemberCardProps) {
       </div>
     </div>
   )
-}
+} 
