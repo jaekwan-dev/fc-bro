@@ -1,58 +1,75 @@
 import type { Member } from "@/types/member"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { PositionBadge } from "./PositionBadge"
-import { AttendanceProgress } from "./AttendanceProgress"
+import { Card, CardContent } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
 
 interface MemberCardProps {
   member: Member
 }
 
 export function MemberCard({ member }: MemberCardProps) {
-  const getPositionColor = (position: string) => {
-    switch (position) {
-      case "GK":
-        return "bg-blue-50 border-blue-200 text-blue-900"
-      case "DF":
-        return "bg-green-50 border-green-200 text-green-900"
-      case "MF":
-        return "bg-purple-50 border-purple-200 text-purple-900"
-      case "FW":
-        return "bg-orange-50 border-orange-200 text-orange-900"
-      default:
-        return "bg-gray-50 border-gray-200 text-gray-900"
-    }
-  }
+  const subPosition = member.subPosition ? member.subPosition : null
 
   return (
-    <div className={`${getPositionColor(member.mainPosition)} border-2 rounded-xl p-4 mb-3 relative overflow-hidden`}>
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-3">
-          <Avatar className="w-12 h-12 border-2 border-white shadow-sm">
-            <AvatarImage src={member.profileUrl || `/placeholder.svg?height=48&width=48`} />
-            <AvatarFallback className="bg-white font-bold">{member.name.charAt(0)}</AvatarFallback>
-          </Avatar>
+    <Card className="mb-3 hover:shadow-md transition-shadow duration-200">
+      <CardContent className="p-4">
+        <div className="flex items-start justify-between">
+          <div className="flex items-center space-x-4 flex-1">
+            <Avatar className="w-14 h-14 border border-border">
+              <AvatarImage src={member.profileUrl || `/placeholder.svg?height=56&width=56`} />
+              <AvatarFallback className="text-lg font-semibold">{member.name.charAt(0)}</AvatarFallback>
+            </Avatar>
 
-          <div>
-            <div className="font-bold text-lg">{member.name}</div>
-            <div className="flex items-center space-x-2 mt-1">
-              <PositionBadge position={member.mainPosition} level={member.mainLevel} size="sm" />
-              <span className="text-sm opacity-70">{member.age}세</span>
+            <div className="flex-1 space-y-2">
+              <div>
+                <h3 className="text-lg font-semibold text-foreground">{member.name}</h3>
+                <p className="text-sm text-muted-foreground">{member.age}세</p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div className="space-y-1">
+                  <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">주포지션</div>
+                  <Badge variant="secondary" className="text-xs font-medium">
+                    {member.mainPosition}
+                  </Badge>
+                </div>
+
+                {subPosition && (
+                  <div className="space-y-1">
+                    <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">부포지션</div>
+                    <Badge variant="outline" className="text-xs font-medium">
+                      {subPosition}
+                    </Badge>
+                  </div>
+                )}
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div className="space-y-1">
+                  <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">레벨</div>
+                  <div className="text-sm font-medium text-foreground">{member.mainLevel}</div>
+                </div>
+
+                <div className="space-y-1">
+                  <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">출석률</div>
+                  <div className="text-sm font-medium text-foreground">
+                    {member.attendance}/{member.totalGames}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="ml-4">
+            <div 
+              className="text-5xl font-black text-muted-foreground/20 leading-none select-none tracking-tighter" 
+              style={{fontFamily: '"JetBrains Mono", "Consolas", "Monaco", monospace'}}
+            >
+              {String(member.backNumber).padStart(2, '0')}
             </div>
           </div>
         </div>
-
-        <div className="text-right">
-          <div className="text-2xl font-bold opacity-30">#{member.backNumber}</div>
-        </div>
-      </div>
-
-      <div className="mt-3">
-        <AttendanceProgress 
-          attendance={member.attendance} 
-          totalGames={member.totalGames} 
-          size="sm" 
-        />
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   )
 }

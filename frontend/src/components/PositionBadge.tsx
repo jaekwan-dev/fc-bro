@@ -2,7 +2,7 @@ import { Badge } from "@/components/ui/badge"
 
 interface PositionBadgeProps {
   position: string
-  level?: number | string
+  level?: "프로" | "세미프로" | "아마추어" | "루키"
   size?: "sm" | "default" | "lg"
 }
 
@@ -44,7 +44,7 @@ export function PositionBadge({ position, level, size = "default" }: PositionBad
     >
       {getPositionName(position)}
       {level && (
-        <span className="ml-1 opacity-70">Lv.{level}</span>
+        <span className="ml-1 opacity-70">{level}</span>
       )}
     </Badge>
   )

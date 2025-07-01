@@ -13,6 +13,7 @@ interface AddMemberFormProps {
 }
 
 const positions = ["GK", "DF", "MF", "FW"];
+const levels = ["프로", "세미프로", "아마추어", "루키"];
 
 export function AddMemberForm({ onSuccess, onCancel }: AddMemberFormProps) {
   const [formData, setFormData] = useState<CreateMemberDto>({
@@ -21,7 +22,7 @@ export function AddMemberForm({ onSuccess, onCancel }: AddMemberFormProps) {
     backNumber: 1,
     mainPosition: "MF",
     subPosition: "",
-    mainLevel: 3,
+    mainLevel: "아마추어",
     subLevel: 2,
     profileUrl: "",
   });
@@ -124,16 +125,18 @@ export function AddMemberForm({ onSuccess, onCancel }: AddMemberFormProps) {
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <Label htmlFor="mainLevel">주 포지션 레벨 (1-5)</Label>
-            <Input
+            <Label htmlFor="mainLevel">주 포지션 레벨</Label>
+            <select
               id="mainLevel"
-              type="number"
-              min="1"
-              max="5"
               value={formData.mainLevel}
-              onChange={(e) => setFormData({ ...formData, mainLevel: parseInt(e.target.value) })}
+              onChange={(e) => setFormData({ ...formData, mainLevel: e.target.value as "프로" | "세미프로" | "아마추어" | "루키" })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md"
               required
-            />
+            >
+              {levels.map((level) => (
+                <option key={level} value={level}>{level}</option>
+              ))}
+            </select>
           </div>
           <div>
             <Label htmlFor="subLevel">부 포지션 레벨 (1-5)</Label>

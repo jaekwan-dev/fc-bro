@@ -1,5 +1,5 @@
 "use client";
-import { MemberCard } from "@/components/member-card";
+import { MemberCard } from "@/components/MemberCard";
 import { AddMemberForm } from "@/components/AddMemberForm";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

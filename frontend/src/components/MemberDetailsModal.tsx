@@ -187,14 +187,17 @@ export function MemberDetailsModal({
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <Label htmlFor="mainLevel">주 포지션 레벨</Label>
-                  <Input
+                  <select
                     id="mainLevel"
-                    type="number"
-                    min="1"
-                    max="5"
                     value={formData.mainLevel}
-                    onChange={(e) => setFormData({ ...formData, mainLevel: parseInt(e.target.value) })}
-                  />
+                    onChange={(e) => setFormData({ ...formData, mainLevel: e.target.value as "프로" | "세미프로" | "아마추어" | "루키" })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                  >
+                    <option value="프로">프로</option>
+                    <option value="세미프로">세미프로</option>
+                    <option value="아마추어">아마추어</option>
+                    <option value="루키">루키</option>
+                  </select>
                 </div>
                 <div>
                   <Label htmlFor="subPosition">부 포지션</Label>
