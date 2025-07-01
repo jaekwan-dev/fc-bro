@@ -4,10 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
-import { CreateMemberDto } from "@/types/member";
+import { Member, UpdateMemberDto } from "@/types/member";
 import { apiClient } from "@/lib/api";
 
-interface AddMemberFormProps {
+interface MemberEditFormProps {
+  member: Member;
   onSuccess?: () => void;
   onCancel?: () => void;
 }
@@ -16,17 +17,21 @@ const positions = ["GK", "DF", "MF", "FW"];
 const levels = ["프로", "세미프로", "아마추어", "루키"];
 const feet = ["오른발", "왼발", "양발"];
 
-export function AddMemberForm({ onSuccess, onCancel }: AddMemberFormProps) {
-  const [formData, setFormData] = useState<CreateMemberDto>({
-    name: "",
-    birthYear: undefined,
-    backNumber: undefined,
-    mainPosition: undefined,
-    subPosition: [],
-    mainLevel: undefined,
-    subLevel: 2,
-    preferredFoot: undefined,
-    profileUrl: "",
+export function MemberEditForm({ member, onSuccess, onCancel }: MemberEditFormProps) {
+  const [formData, setFormData] = useState<UpdateMemberDto>({
+    name: member.name,
+    birthYear: member.birthYear,
+    backNumber: member.backNumber,
+    mainPosition: member.mainPosition,
+    subPosition: member.subPosition || [],
+    mainLevel: member.mainLevel,
+    subLevel: member.subLevel,
+    preferredFoot: member.preferredFoot,
+    shoeSize: member.shoeSize,
+    footballBoots: member.footballBoots,
+    roleModel: member.roleModel,
+    profileUrl: member.profileUrl,
+    injuries: member.injuries,
   });
 
   // 부포지션 레벨을 주포지션보다 하나 낮게 자동 계산
@@ -35,6 +40,7 @@ export function AddMemberForm({ onSuccess, onCancel }: AddMemberFormProps) {
     const mainLevelValue = levelMap[mainLevel as keyof typeof levelMap] || 3;
     return Math.max(2, mainLevelValue - 1); // 최소값은 2 (루키)
   };
+
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [validationErrors, setValidationErrors] = useState<{[key: string]: string}>({});
@@ -42,7 +48,7 @@ export function AddMemberForm({ onSuccess, onCancel }: AddMemberFormProps) {
   const validateForm = (): boolean => {
     const errors: {[key: string]: string} = {};
     
-    if (!formData.name.trim()) {
+    if (!formData.name?.trim()) {
       errors.name = "이름을 입력해주세요";
     }
     
@@ -62,10 +68,6 @@ export function AddMemberForm({ onSuccess, onCancel }: AddMemberFormProps) {
       errors.mainLevel = "주 포지션 레벨을 선택해주세요";
     }
     
-    if (!formData.preferredFoot) {
-      errors.preferredFoot = "주발을 선택해주세요";
-    }
-    
     setValidationErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -81,10 +83,10 @@ export function AddMemberForm({ onSuccess, onCancel }: AddMemberFormProps) {
     setError("");
 
     try {
-      await apiClient.createMember(formData);
+      await apiClient.updateMember(member.id, formData);
       onSuccess?.();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "팀원 추가에 실패했습니다.");
+      setError(err instanceof Error ? err.message : "팀원 수정에 실패했습니다.");
     } finally {
       setIsLoading(false);
     }
@@ -110,8 +112,8 @@ export function AddMemberForm({ onSuccess, onCancel }: AddMemberFormProps) {
       <div className="max-w-md mx-auto">
         {/* 헤더 */}
         <div className="text-center mb-8 pt-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">새 팀원 추가</h1>
-          <p className="text-gray-600">팀에 새로운 선수를 등록해보세요</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">팀원 정보 수정</h1>
+          <p className="text-gray-600">{member.name}의 정보를 수정해보세요</p>
         </div>
 
         {error && (
@@ -137,7 +139,7 @@ export function AddMemberForm({ onSuccess, onCancel }: AddMemberFormProps) {
                   <Label htmlFor="name" className="text-sm font-medium text-gray-700 mb-2 block">이름</Label>
                   <Input
                     id="name"
-                    value={formData.name}
+                    value={formData.name || ""}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     placeholder="선수 이름을 입력하세요"
                     className={`h-12 text-base ${validationErrors.name ? 'border-red-500' : ''}`}
@@ -150,7 +152,7 @@ export function AddMemberForm({ onSuccess, onCancel }: AddMemberFormProps) {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="age" className="text-sm font-medium text-gray-700 mb-2 block">출생년도</Label>
+                    <Label htmlFor="birthYear" className="text-sm font-medium text-gray-700 mb-2 block">출생년도</Label>
                     <Input
                       id="birthYear"
                       type="number"
@@ -196,15 +198,12 @@ export function AddMemberForm({ onSuccess, onCancel }: AddMemberFormProps) {
                           formData.preferredFoot === foot
                             ? 'border-purple-500 bg-purple-50 text-purple-700 font-semibold'
                             : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50'
-                        } ${validationErrors.preferredFoot ? 'border-red-500' : ''}`}
+                        }`}
                       >
                         {foot}
                       </button>
                     ))}
                   </div>
-                  {validationErrors.preferredFoot && (
-                    <p className="text-red-500 text-sm mt-1">{validationErrors.preferredFoot}</p>
-                  )}
                 </div>
               </div>
             </CardContent>
@@ -241,7 +240,6 @@ export function AddMemberForm({ onSuccess, onCancel }: AddMemberFormProps) {
                     <p className="text-red-500 text-sm mt-1">{validationErrors.mainPosition}</p>
                   )}
                 </div>
-
 
                 <div>
                   <Label className="text-sm font-medium text-gray-700 mb-3 block">주 포지션 레벨</Label>
@@ -298,24 +296,54 @@ export function AddMemberForm({ onSuccess, onCancel }: AddMemberFormProps) {
             </CardContent>
           </Card>
 
-          {/* 레벨 정보 섹션 */}
-          {/* <Card className="border-0 shadow-lg">
-            <CardContent className="p-6">
+          {/* 추가 정보 섹션 */}
+          <Card className="border-0 shadow-lg">
+            <CardContent className="px-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                실력 레벨
+                <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                추가 정보
               </h3>
               
-              <div className="grid grid-cols-1 gap-4">
-                <div>
-                  <Label className="text-sm font-medium text-gray-700 mb-2 block">부 포지션 레벨</Label>
-                  <div className="h-12 px-3 text-base border border-gray-300 rounded-md bg-gray-50 flex items-center text-gray-600">
-                    {formData.subLevel} (자동 설정)
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="shoeSize" className="text-sm font-medium text-gray-700 mb-2 block">발사이즈 (mm)</Label>
+                    <Input
+                      id="shoeSize"
+                      type="number"
+                      min="200"
+                      max="350"
+                      placeholder="250"
+                      value={formData.shoeSize || ""}
+                      onChange={(e) => setFormData({ ...formData, shoeSize: e.target.value ? parseInt(e.target.value) : undefined })}
+                      className="h-12 text-base"
+                    />
                   </div>
+                  <div>
+                    <Label htmlFor="footballBoots" className="text-sm font-medium text-gray-700 mb-2 block">축구화</Label>
+                    <Input
+                      id="footballBoots"
+                      value={formData.footballBoots || ""}
+                      onChange={(e) => setFormData({ ...formData, footballBoots: e.target.value })}
+                      placeholder="축구화 모델명"
+                      className="h-12 text-base"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="roleModel" className="text-sm font-medium text-gray-700 mb-2 block">롤모델</Label>
+                  <Input
+                    id="roleModel"
+                    value={formData.roleModel || ""}
+                    onChange={(e) => setFormData({ ...formData, roleModel: e.target.value })}
+                    placeholder="좋아하는 선수나 롤모델"
+                    className="h-12 text-base"
+                  />
                 </div>
               </div>
             </CardContent>
-          </Card> */}
+          </Card>
 
           {/* 버튼 영역 */}
           <div className="flex gap-3 pt-4 pb-8">
@@ -338,10 +366,10 @@ export function AddMemberForm({ onSuccess, onCancel }: AddMemberFormProps) {
               {isLoading ? (
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  추가 중...
+                  수정 중...
                 </div>
               ) : (
-                "팀원 추가"
+                "정보 수정"
               )}
             </Button>
           </div>

@@ -10,15 +10,17 @@ import { Input } from "@/components/ui/input"
 import { Users, ArrowLeft, Clock, MapPin } from "lucide-react"
 import { PositionSection } from "@/components/PositionSection"
 import { AddMemberForm } from "@/components/AddMemberForm"
+import { MemberDetailsPage } from "@/components/MemberDetailsPage"
+import { MemberEditForm } from "@/components/MemberEditForm"
 import { Member } from "@/types/member"
-import { apiClient } from "@/lib/api"
 
 export default function Home() {
   const [showTeamRoster, setShowTeamRoster] = useState(false)
   const [search, setSearch] = useState("")
   const [positionFilter, setPositionFilter] = useState<string>("ALL")
-  const [showFilter, setShowFilter] = useState(false)
   const [showAddForm, setShowAddForm] = useState(false)
+  const [showEditForm, setShowEditForm] = useState(false)
+  const [selectedMember, setSelectedMember] = useState<Member | null>(null)
   const [membersData, setMembersData] = useState<Member[]>(members)
   const [isLoading, setIsLoading] = useState(false)
 
@@ -27,11 +29,11 @@ export default function Home() {
   const fetchMembers = async () => {
     try {
       setIsLoading(true)
-      const data = await apiClient.getMembers()
-      setMembersData(data)
+      // 임시로 로컬 데이터 사용 (API 문제 해결 전까지)
+      setMembersData(members)
+      console.log('로컬 데이터 로드:', members)
     } catch (err) {
       console.error(err)
-      // API 실패 시 로컬 데이터 사용
       setMembersData(members)
     } finally {
       setIsLoading(false)
@@ -53,9 +55,47 @@ export default function Home() {
     fetchMembers()
   }
 
+  const handleMemberClick = (member: Member) => {
+    setSelectedMember(member)
+  }
+
+  const handleBackFromDetails = () => {
+    setSelectedMember(null)
+  }
+
+  const handleEditMember = () => {
+    setShowEditForm(true)
+  }
+
+  const handleEditSuccess = () => {
+    setShowEditForm(false)
+    setSelectedMember(null)
+    fetchMembers()
+  }
+
+  const handleEditCancel = () => {
+    setShowEditForm(false)
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      {!showTeamRoster ? (
+      {selectedMember && showEditForm ? (
+        <MemberEditForm
+          member={selectedMember}
+          onSuccess={handleEditSuccess}
+          onCancel={handleEditCancel}
+        />
+      ) : selectedMember ? (
+        <MemberDetailsPage
+          member={selectedMember}
+          onBack={handleBackFromDetails}
+          onEdit={handleEditMember}
+          onDelete={() => {
+            fetchMembers()
+            setSelectedMember(null)
+          }}
+        />
+      ) : !showTeamRoster ? (
         // 메인 화면
         <div className="max-w-md mx-auto min-h-screen">
           {/* 헤더 */}
@@ -171,7 +211,7 @@ export default function Home() {
               </Button>
               <div className="text-center">
                 <h1 className="text-2xl font-bold text-gray-900">팀원 목록</h1>
-                <p className="text-sm text-gray-600 font-medium">{membersData.length}명의 선수</p>
+                {/* <p className="text-sm text-gray-600 font-medium">{membersData.length}명의 선수</p> */}
               </div>
               <div className="w-10" />
             </div>
@@ -182,18 +222,18 @@ export default function Home() {
             <div className="space-y-3">
               <div className="flex items-center gap-2">
                 <Input
-                  placeholder="이름/포지션 검색"
+                  placeholder="이름 검색"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   className="flex-1"
                 />
-                <Button 
+                {/* <Button 
                   variant={showFilter ? "default" : "outline"}
                   onClick={() => setShowFilter(!showFilter)}
                   className="ml-2"
                 >
                   필터
-                </Button>
+                </Button> */}
                 <Button
                   onClick={() => setShowAddForm(true)}
                   className="bg-orange-500 hover:bg-orange-600 text-white"
@@ -202,21 +242,19 @@ export default function Home() {
                 </Button>
               </div>
               
-              {showFilter && (
-                <div className="flex gap-2 flex-wrap">
-                  {positions.map((position) => (
-                    <Button
-                      key={position}
-                      size="sm"
-                      variant={positionFilter === position ? "default" : "outline"}
-                      onClick={() => setPositionFilter(position)}
-                      className="text-xs"
-                    >
-                      {position === "ALL" ? "전체" : position}
-                    </Button>
-                  ))}
-                </div>
-              )}
+              <div className="flex gap-2 flex-wrap">
+                {positions.map((position) => (
+                  <Button
+                    key={position}
+                    size="sm"
+                    variant={positionFilter === position ? "default" : "outline"}
+                    onClick={() => setPositionFilter(position)}
+                    className="text-xs w-12 h-8 flex-shrink-0"
+                  >
+                    {position === "ALL" ? "전체" : position}
+                  </Button>
+                ))}
+              </div>
             </div>
           </div>
 
@@ -229,21 +267,25 @@ export default function Home() {
                   title="골키퍼"
                   members={filtered.filter((m) => m.mainPosition === "GK")}
                   gradient="border-blue-200 bg-blue-50"
+                  onMemberClick={handleMemberClick}
                 />
                 <PositionSection
                   title="수비수"
                   members={filtered.filter((m) => m.mainPosition === "DF")}
                   gradient="border-green-200 bg-green-50"
+                  onMemberClick={handleMemberClick}
                 />
                 <PositionSection
                   title="미드필더"
                   members={filtered.filter((m) => m.mainPosition === "MF")}
                   gradient="border-purple-200 bg-purple-50"
+                  onMemberClick={handleMemberClick}
                 />
                 <PositionSection
                   title="공격수"
                   members={filtered.filter((m) => m.mainPosition === "FW")}
                   gradient="border-orange-200 bg-orange-50"
+                  onMemberClick={handleMemberClick}
                 />
               </>
             ) : (

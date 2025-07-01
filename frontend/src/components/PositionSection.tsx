@@ -5,9 +5,10 @@ interface PositionSectionProps {
   title: string
   members: Member[]
   gradient: string
+  onMemberClick?: (member: Member) => void
 }
 
-export function PositionSection({ title, members, gradient }: PositionSectionProps) {
+export function PositionSection({ title, members, gradient, onMemberClick }: PositionSectionProps) {
   if (members.length === 0) return null
 
   // 한글 → 영어 변환 (혹시 한글이 들어올 경우 대비)
@@ -33,7 +34,11 @@ export function PositionSection({ title, members, gradient }: PositionSectionPro
       </div>
       <div className="space-y-1">
         {members.map((member) => (
-          <MemberCard key={member.id} member={member} />
+          <MemberCard 
+            key={member.id} 
+            member={member} 
+            onClick={onMemberClick}
+          />
         ))}
       </div>
     </div>
