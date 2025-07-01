@@ -106,7 +106,7 @@ export function MemberDetailsPage({
                   <div>
                     <div className="text-sm font-medium text-gray-700 mb-2">백넘버</div>
                     <div className="h-12 px-3 text-base border border-gray-300 rounded-md bg-gray-50 flex items-center text-gray-900 font-medium">
-                      #{member.backNumber}
+                      {member.backNumber}
                     </div>
                   </div>
                   <div>

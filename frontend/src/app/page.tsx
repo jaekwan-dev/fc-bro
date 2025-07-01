@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { members } from "@/data/members"
 import { fixtures } from "@/data/fixtures"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Users, ArrowLeft, Clock, MapPin } from "lucide-react"
@@ -23,6 +23,45 @@ export default function Home() {
   const [selectedMember, setSelectedMember] = useState<Member | null>(null)
   const [membersData, setMembersData] = useState<Member[]>(members)
   const [isLoading, setIsLoading] = useState(false)
+
+  // 경기 시간 계산 함수
+  const calculateGameTimes = (meetingTime: string) => {
+    const [hour, minute] = meetingTime.split(':').map(Number)
+    const meetingMinutes = hour * 60 + minute
+    
+    const lateCheckMinutes = meetingMinutes + 10
+    const firstQuarterStartMinutes = meetingMinutes + 30
+    
+    const formatTime = (totalMinutes: number) => {
+      const h = Math.floor(totalMinutes / 60)
+      const m = totalMinutes % 60
+      return `${h}:${m.toString().padStart(2, '0')}`
+    }
+    
+    const formatQuarterTime = (startMinutes: number) => {
+      const start = formatTime(startMinutes)
+      const end = formatTime(startMinutes + 25)
+      return `${start}~${end}`
+    }
+    
+    return {
+      lateCheck: formatTime(lateCheckMinutes),
+      quarters: [
+        formatQuarterTime(firstQuarterStartMinutes),
+        formatQuarterTime(firstQuarterStartMinutes + 30),
+        formatQuarterTime(firstQuarterStartMinutes + 60),
+        formatQuarterTime(firstQuarterStartMinutes + 90)
+      ]
+    }
+  }
+
+  // 다음 경기 정보 (실제로는 API에서 가져올 데이터)
+  const nextGame = {
+    date: "12월 15일",
+    meetingTime: "6:30"
+  }
+  
+  const gameTimes = calculateGameTimes(nextGame.meetingTime)
 
   const positions = ["ALL", "GK", "DF", "MF", "FW"]
 
@@ -99,13 +138,13 @@ export default function Home() {
         // 메인 화면
         <div className="max-w-md mx-auto min-h-screen">
           {/* 헤더 */}
-          <div className="px-6 pt-16 pb-8">
-            <div className="text-center space-y-3">
+          <div className="px-6 pt-4 pb-4">
+            <div className="text-left space-y-3">
               {/* <div className="inline-flex items-center gap-2 bg-white rounded-full px-4 py-2 shadow-sm"> */}
                 {/* <Trophy className="w-5 h-5 text-yellow-500" /> */}
                 {/* <span className="text-sm font-semibold text-gray-700">축구팀</span> */}
               {/* </div> */}
-              <h1 className="text-5xl font-black text-gray-900 tracking-tight">FC BRO</h1>
+            <h1 className="text-2xl font-bold text-gray-900">다음 경기 일정</h1>
               {/* <p className="text-gray-600 font-medium">프로페셔널 축구팀</p> */}
             </div>
           </div>
@@ -113,68 +152,156 @@ export default function Home() {
           {/* 다음 경기 카드 */}
           <div className="px-6 mb-8">
             <Card className="bg-gradient-to-r from-slate-900 to-slate-800 text-white border-0 shadow-2xl">
-              <CardHeader className="pb-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Badge className="bg-white/20 text-white border-0 mb-3">다음 경기</Badge>
-                    <CardTitle className="text-3xl font-bold">12월 15일</CardTitle>
-                    <p className="text-white/80 font-medium">14:00 킥오프</p>
+              <CardHeader className="pb-1">
+                <div>
+                  <div className="flex items-center gap-6 text-sm text-white/80 mb-6">
+                  {/* <Badge className="bg-white/20 text-white border-0">다음 경기</Badge> */}
+                    <div className="flex items-center gap-2">
+                      <MapPin className="w-4 h-4" />
+                      <span className="font-medium">서울월드컵경기장</span>
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-white/60 text-sm font-medium">VS</p>
-                    <p className="text-2xl font-bold">FC UNITED</p>
+                  {/* 경기 일자와 시간 */}
+                  <div className="text-center mb-3">
+                    <div className="text-4xl font-black text-white mb-2">{nextGame.date} {nextGame.meetingTime}</div>
+                  </div>
+                  
+                  {/* 지각자 체크 시간 */}
+                  <div className="text-center mb-3">
+                    <div className="text-2xl font-bold text-red-300 mb-1">지각자 체크 : {gameTimes.lateCheck}</div>
+                  </div>
+                  
+                  {/* 쿼터별 시간 */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="flex items-center gap-3 bg-white/10 rounded-lg p-3">
+                      <span className="w-10 h-6 bg-white/20 rounded-full flex items-center justify-center font-bold text-sm">1Q</span>
+                      <span className="text-white font-semibold">{gameTimes.quarters[0]}</span>
+                    </div>
+                    <div className="flex items-center gap-3 bg-white/10 rounded-lg p-3">
+                      <span className="w-10 h-6 bg-white/20 rounded-full flex items-center justify-center font-bold text-sm">2Q</span>
+                      <span className="text-white font-semibold">{gameTimes.quarters[1]}</span>
+                    </div>
+                    <div className="flex items-center gap-3 bg-white/10 rounded-lg p-3">
+                      <span className="w-10 h-6 bg-white/20 rounded-full flex items-center justify-center font-bold text-sm">3Q</span>
+                      <span className="text-white font-semibold">{gameTimes.quarters[2]}</span>
+                    </div>
+                    <div className="flex items-center gap-3 bg-white/10 rounded-lg p-3">
+                      <span className="w-10 h-6 bg-white/20 rounded-full flex items-center justify-center font-bold text-sm">4Q</span>
+                      <span className="text-white font-semibold">{gameTimes.quarters[3]}</span>
+                    </div>
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className="pt-0">
-                <div className="flex items-center gap-6 text-sm text-white/80">
+            </Card>
+            <Card className="mt-8 bg-gradient-to-r from-gray-50 to-gray-100 border-0 shadow-lg">
+              <CardContent className="px-6">
+                <div className="space-y-3 mb-4">
                   <div className="flex items-center gap-2">
-                    <Users className="w-4 h-4" />
-                    <span className="font-medium">{members.length}명</span>
+                      <Users className="w-4 h-4 text-gray-600" />
+                      <span className="font-medium text-gray-700">{members.length}명</span>
                   </div>
+                </div>
+
+                {/* 참석자 목록 */}
+                
+                <div className="space-y-4">
                   <div className="flex items-center gap-2">
-                    <MapPin className="w-4 h-4" />
-                    <span className="font-medium">서울월드컵경기장</span>
+                    <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                    <span className="text-sm font-semibold text-gray-800">노랑팀</span>
+                  </div>
+                  <div className="grid grid-cols-3 gap-1 p-2 bg-yellow-50 rounded-lg border border-yellow-200">
+                    {members.slice(0, 14)
+                      .sort((a, b) => {
+                        const positionOrder = { "GK": 1, "DF": 2, "MF": 3, "FW": 4 };
+                        const aOrder = positionOrder[a.mainPosition as keyof typeof positionOrder] || 5;
+                        const bOrder = positionOrder[b.mainPosition as keyof typeof positionOrder] || 5;
+                        return aOrder - bOrder;
+                      })
+                      .map((member) => (
+                      <div key={member.id} className="flex items-center justify-center gap-1 bg-white rounded-full px-3 py-1 text-xs shadow-sm border border-yellow-200">
+                        <span className="font-medium text-gray-800">{member.name}</span>
+                        <span className={`font-bold ${
+                          member.mainPosition === "GK" ? "text-blue-600" :
+                          member.mainPosition === "DF" ? "text-green-600" :
+                          member.mainPosition === "MF" ? "text-purple-600" :
+                          "text-orange-600"
+                        }`}>{member.mainPosition}</span>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  <div className="flex items-center gap-2 mt-8">
+                    <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                    <span className="text-sm font-semibold text-gray-800">파랑팀</span>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2 p-2 bg-blue-50 rounded-lg border border-blue-200">
+                    {members.slice(14, 28)
+                      .sort((a, b) => {
+                        const positionOrder = { "GK": 1, "DF": 2, "MF": 3, "FW": 4 };
+                        const aOrder = positionOrder[a.mainPosition as keyof typeof positionOrder] || 5;
+                        const bOrder = positionOrder[b.mainPosition as keyof typeof positionOrder] || 5;
+                        return aOrder - bOrder;
+                      })
+                      .map((member) => (
+                      <div key={member.id} className="flex items-center justify-center gap-1 bg-white rounded-full px-3 py-1 text-xs shadow-sm border border-blue-200">
+                        <span className="font-medium text-gray-800">{member.name}</span>
+                        <span className={`font-bold ${
+                          member.mainPosition === "GK" ? "text-blue-600" :
+                          member.mainPosition === "DF" ? "text-green-600" :
+                          member.mainPosition === "MF" ? "text-purple-600" :
+                          "text-orange-600"
+                        }`}>{member.mainPosition}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </CardContent>
             </Card>
           </div>
 
-          {/* 경기 일정 */}
+          {/* 이후 경기 일정 */}
           <div className="px-6 mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">경기 일정</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">이후 경기 일정</h2>
             <div className="space-y-4">
-              {fixtures.map((fixture, index) => (
-                <Card key={fixture.id} className="border-0 shadow-lg hover:shadow-xl transition-all duration-300">
-                  <CardContent className="p-5">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center gap-3">
-                        <div
-                          className={`w-3 h-3 rounded-full ${index === 0 ? "bg-green-400" : index === 1 ? "bg-blue-400" : "bg-orange-400"}`}
-                        />
-                        <Badge variant="secondary" className="font-semibold">
-                          {fixture.type}
-                        </Badge>
-                        <span className="text-sm text-gray-600 font-medium">{fixture.date}</span>
+                            {fixtures.length > 0 ? (
+                fixtures.map((fixture, index) => (
+                  <Card key={fixture.id} className="border-0 shadow-lg hover:shadow-xl transition-all duration-300">
+                    <CardContent className="p-5">
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-3">
+                          <div
+                            className={`w-3 h-3 rounded-full ${index === 0 ? "bg-green-400" : index === 1 ? "bg-blue-400" : "bg-orange-400"}`}
+                          />
+                          <Badge variant="secondary" className="font-semibold">
+                            {fixture.type}
+                          </Badge>
+                          <span className="text-sm text-gray-600 font-medium">{fixture.date}</span>
+                        </div>
+                        <div className="flex items-center gap-1 text-sm font-bold text-gray-900">
+                          <Clock className="w-4 h-4" />
+                          {fixture.time}
+                        </div>
                       </div>
-                      <div className="flex items-center gap-1 text-sm font-bold text-gray-900">
-                        <Clock className="w-4 h-4" />
-                        {fixture.time}
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="font-bold text-lg text-gray-900">FC BRO</span>
                       </div>
-                    </div>
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="font-bold text-lg text-gray-900">FC BRO</span>
-                      <span className="text-gray-400 font-bold">VS</span>
-                      <span className="font-bold text-lg text-gray-900">{fixture.opponent}</span>
-                    </div>
-                    <div className="flex items-center gap-1 text-xs text-gray-500">
-                      <MapPin className="w-3 h-3" />
-                      <span className="font-medium">{fixture.location}</span>
+                      <div className="flex items-center gap-1 text-xs text-gray-500">
+                        <MapPin className="w-3 h-3" />
+                        <span className="font-medium">{fixture.location}</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))
+              ) : (
+                <Card className="border-0 shadow-lg">
+                  <CardContent className="p-8 text-center">
+                    <div className="text-gray-500">
+                      <p className="text-lg font-medium mb-2">예정된 경기가 없습니다</p>
+                      <p className="text-sm">새로운 경기 일정이 추가되면 여기에 표시됩니다.</p>
                     </div>
                   </CardContent>
                 </Card>
-              ))}
+              )}
             </div>
           </div>
 
