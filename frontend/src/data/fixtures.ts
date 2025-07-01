@@ -16,20 +16,4 @@ export const fixtures: Fixture[] = [
     location: "서울월드컵경기장",
     type: "리그전",
   },
-  {
-    id: 2,
-    date: "12월 22일",
-    time: "16:00",
-    opponent: "SEOUL FC",
-    location: "잠실종합운동장",
-    type: "친선경기",
-  },
-  {
-    id: 3,
-    date: "12월 29일",
-    time: "15:00",
-    opponent: "VICTORY FC",
-    location: "상암월드컵경기장",
-    type: "컵대회",
-  },
 ]

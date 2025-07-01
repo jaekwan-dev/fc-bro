@@ -1,16 +1,57 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { members } from "@/data/members"
 import { fixtures } from "@/data/fixtures"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Users, ArrowLeft, Clock, MapPin, Trophy } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import { Users, ArrowLeft, Clock, MapPin } from "lucide-react"
 import { PositionSection } from "@/components/PositionSection"
+import { AddMemberForm } from "@/components/AddMemberForm"
+import { Member } from "@/types/member"
+import { apiClient } from "@/lib/api"
 
 export default function Home() {
   const [showTeamRoster, setShowTeamRoster] = useState(false)
+  const [search, setSearch] = useState("")
+  const [positionFilter, setPositionFilter] = useState<string>("ALL")
+  const [showFilter, setShowFilter] = useState(false)
+  const [showAddForm, setShowAddForm] = useState(false)
+  const [membersData, setMembersData] = useState<Member[]>(members)
+  const [isLoading, setIsLoading] = useState(false)
+
+  const positions = ["ALL", "GK", "DF", "MF", "FW"]
+
+  const fetchMembers = async () => {
+    try {
+      setIsLoading(true)
+      const data = await apiClient.getMembers()
+      setMembersData(data)
+    } catch (err) {
+      console.error(err)
+      // API 실패 시 로컬 데이터 사용
+      setMembersData(members)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchMembers()
+  }, [])
+
+  const filtered = membersData.filter((m) => {
+    const matchesSearch = m.name.includes(search) || m.mainPosition.includes(search)
+    const matchesPosition = positionFilter === "ALL" || m.mainPosition === positionFilter
+    return matchesSearch && matchesPosition
+  })
+
+  const handleAddSuccess = () => {
+    setShowAddForm(false)
+    fetchMembers()
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
@@ -20,12 +61,12 @@ export default function Home() {
           {/* 헤더 */}
           <div className="px-6 pt-16 pb-8">
             <div className="text-center space-y-3">
-              <div className="inline-flex items-center gap-2 bg-white rounded-full px-4 py-2 shadow-sm">
-                <Trophy className="w-5 h-5 text-yellow-500" />
-                <span className="text-sm font-semibold text-gray-700">축구팀</span>
-              </div>
+              {/* <div className="inline-flex items-center gap-2 bg-white rounded-full px-4 py-2 shadow-sm"> */}
+                {/* <Trophy className="w-5 h-5 text-yellow-500" /> */}
+                {/* <span className="text-sm font-semibold text-gray-700">축구팀</span> */}
+              {/* </div> */}
               <h1 className="text-5xl font-black text-gray-900 tracking-tight">FC BRO</h1>
-              <p className="text-gray-600 font-medium">프로페셔널 축구팀</p>
+              {/* <p className="text-gray-600 font-medium">프로페셔널 축구팀</p> */}
             </div>
           </div>
 
@@ -107,6 +148,14 @@ export default function Home() {
             </Button>
           </div>
         </div>
+      ) : showAddForm ? (
+        // 팀원 추가 화면
+        <div className="max-w-md mx-auto p-4 min-h-screen">
+          <AddMemberForm
+            onSuccess={handleAddSuccess}
+            onCancel={() => setShowAddForm(false)}
+          />
+        </div>
       ) : (
         // 팀원 목록 화면
         <div className="max-w-md mx-auto min-h-screen">
@@ -122,33 +171,86 @@ export default function Home() {
               </Button>
               <div className="text-center">
                 <h1 className="text-2xl font-bold text-gray-900">팀원 목록</h1>
-                <p className="text-sm text-gray-600 font-medium">{members.length}명의 선수</p>
+                <p className="text-sm text-gray-600 font-medium">{membersData.length}명의 선수</p>
               </div>
               <div className="w-10" />
             </div>
           </div>
 
-          <div className="px-6 py-8">
-            <PositionSection
-              title="골키퍼"
-              members={members.filter((m) => m.mainPosition === "GK")}
-              gradient="bg-gradient-to-r from-blue-500 to-blue-600"
-            />
-            <PositionSection
-              title="수비수"
-              members={members.filter((m) => m.mainPosition === "DF")}
-              gradient="bg-gradient-to-r from-green-500 to-green-600"
-            />
-            <PositionSection
-              title="미드필더"
-              members={members.filter((m) => m.mainPosition === "MF")}
-              gradient="bg-gradient-to-r from-purple-500 to-purple-600"
-            />
-            <PositionSection
-              title="공격수"
-              members={members.filter((m) => m.mainPosition === "FW")}
-              gradient="bg-gradient-to-r from-orange-500 to-orange-600"
-            />
+          {/* 검색 및 필터 */}
+          <div className="px-6 py-4 border-b border-gray-100">
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <Input
+                  placeholder="이름/포지션 검색"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="flex-1"
+                />
+                <Button 
+                  variant={showFilter ? "default" : "outline"}
+                  onClick={() => setShowFilter(!showFilter)}
+                  className="ml-2"
+                >
+                  필터
+                </Button>
+                <Button
+                  onClick={() => setShowAddForm(true)}
+                  className="bg-orange-500 hover:bg-orange-600 text-white"
+                >
+                  + 추가
+                </Button>
+              </div>
+              
+              {showFilter && (
+                <div className="flex gap-2 flex-wrap">
+                  {positions.map((position) => (
+                    <Button
+                      key={position}
+                      size="sm"
+                      variant={positionFilter === position ? "default" : "outline"}
+                      onClick={() => setPositionFilter(position)}
+                      className="text-xs"
+                    >
+                      {position === "ALL" ? "전체" : position}
+                    </Button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="px-6 py-3">
+            {isLoading ? (
+              <div className="text-center py-8">로딩 중...</div>
+            ) : filtered.length > 0 ? (
+              <>
+                <PositionSection
+                  title="골키퍼"
+                  members={filtered.filter((m) => m.mainPosition === "GK")}
+                  gradient="border-blue-200 bg-blue-50"
+                />
+                <PositionSection
+                  title="수비수"
+                  members={filtered.filter((m) => m.mainPosition === "DF")}
+                  gradient="border-green-200 bg-green-50"
+                />
+                <PositionSection
+                  title="미드필더"
+                  members={filtered.filter((m) => m.mainPosition === "MF")}
+                  gradient="border-purple-200 bg-purple-50"
+                />
+                <PositionSection
+                  title="공격수"
+                  members={filtered.filter((m) => m.mainPosition === "FW")}
+                  gradient="border-orange-200 bg-orange-50"
+                />
+              </>
+            ) : (
+              <div className="text-center py-8 text-gray-500">
+                {search ? "검색 결과가 없습니다." : "등록된 팀원이 없습니다."}
+              </div>
+            )}
           </div>
         </div>
       )}

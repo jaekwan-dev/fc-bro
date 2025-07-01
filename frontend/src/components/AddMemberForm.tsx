@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { CreateMemberDto } from "@/types/member";
 import { apiClient } from "@/lib/api";
 
@@ -18,19 +18,59 @@ const levels = ["프로", "세미프로", "아마추어", "루키"];
 export function AddMemberForm({ onSuccess, onCancel }: AddMemberFormProps) {
   const [formData, setFormData] = useState<CreateMemberDto>({
     name: "",
-    age: 20,
-    backNumber: 1,
-    mainPosition: "MF",
+    age: undefined,
+    backNumber: undefined,
+    mainPosition: undefined,
     subPosition: [],
-    mainLevel: "아마추어",
+    mainLevel: undefined,
     subLevel: 2,
     profileUrl: "",
   });
+
+  // 부포지션 레벨을 주포지션보다 하나 낮게 자동 계산
+  const getSubLevel = (mainLevel: string): number => {
+    const levelMap = { "프로": 5, "세미프로": 4, "아마추어": 3, "루키": 2 };
+    const mainLevelValue = levelMap[mainLevel as keyof typeof levelMap] || 3;
+    return Math.max(2, mainLevelValue - 1); // 최소값은 2 (루키)
+  };
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [validationErrors, setValidationErrors] = useState<{[key: string]: string}>({});
+
+  const validateForm = (): boolean => {
+    const errors: {[key: string]: string} = {};
+    
+    if (!formData.name.trim()) {
+      errors.name = "이름을 입력해주세요";
+    }
+    
+    if (!formData.age || formData.age < 1970 || formData.age > 2010) {
+      errors.age = "출생년도는 1970년부터 2010년 사이여야 합니다";
+    }
+    
+    if (!formData.backNumber || formData.backNumber < 1 || formData.backNumber > 99) {
+      errors.backNumber = "등번호는 1-99 사이여야 합니다";
+    }
+    
+    if (!formData.mainPosition) {
+      errors.mainPosition = "주 포지션을 선택해주세요";
+    }
+    
+    if (!formData.mainLevel) {
+      errors.mainLevel = "주 포지션 레벨을 선택해주세요";
+    }
+    
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!validateForm()) {
+      return;
+    }
+    
     setIsLoading(true);
     setError("");
 
@@ -60,128 +100,224 @@ export function AddMemberForm({ onSuccess, onCancel }: AddMemberFormProps) {
   };
 
   return (
-    <Card className="p-6 max-w-md mx-auto">
-      <h2 className="text-2xl font-bold mb-4 text-center">새 팀원 추가</h2>
-      
-      {error && (
-        <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-          {error}
-        </div>
-      )}
-
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <Label htmlFor="name">이름</Label>
-          <Input
-            id="name"
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            required
-          />
+    <div className="min-h-screen p-4">
+      <div className="max-w-md mx-auto">
+        {/* 헤더 */}
+        <div className="text-center mb-8 pt-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">새 팀원 추가</h1>
+          <p className="text-gray-600">팀에 새로운 선수를 등록해보세요</p>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <Label htmlFor="age">나이</Label>
-            <Input
-              id="age"
-              type="number"
-              min="16"
-              max="50"
-              value={formData.age}
-              onChange={(e) => setFormData({ ...formData, age: parseInt(e.target.value) })}
-              required
-            />
-          </div>
-          <div>
-            <Label htmlFor="backNumber">백넘버</Label>
-            <Input
-              id="backNumber"
-              type="number"
-              min="1"
-              max="99"
-              value={formData.backNumber}
-              onChange={(e) => setFormData({ ...formData, backNumber: parseInt(e.target.value) })}
-              required
-            />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <Label htmlFor="mainPosition">주 포지션</Label>
-            <select
-              id="mainPosition"
-              value={formData.mainPosition}
-              onChange={(e) => setFormData({ ...formData, mainPosition: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-              required
-            >
-              {positions.map((pos) => (
-                <option key={pos} value={pos}>{pos}</option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <Label>부 포지션 (다중 선택 가능)</Label>
-            <div className="space-y-2 mt-2">
-              {positions.filter(pos => pos !== formData.mainPosition).map((pos) => (
-                <div key={pos} className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    id={`sub-${pos}`}
-                    checked={formData.subPosition?.includes(pos) || false}
-                    onChange={(e) => handleSubPositionChange(pos, e.target.checked)}
-                    className="w-4 h-4"
-                  />
-                  <Label htmlFor={`sub-${pos}`} className="text-sm cursor-pointer">
-                    {pos}
-                  </Label>
-                </div>
-              ))}
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl flex items-center gap-2">
+            <div className="w-5 h-5 bg-red-100 rounded-full flex items-center justify-center">
+              <span className="text-red-600 text-xs">!</span>
             </div>
+            {error}
           </div>
-        </div>
+        )}
 
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <Label htmlFor="mainLevel">주 포지션 레벨</Label>
-            <select
-              id="mainLevel"
-              value={formData.mainLevel}
-              onChange={(e) => setFormData({ ...formData, mainLevel: e.target.value as "프로" | "세미프로" | "아마추어" | "루키" })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-              required
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* 기본 정보 섹션 */}
+          <Card className="border-0 shadow-lg">
+            <CardContent className="px-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                기본 정보
+              </h3>
+              
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="name" className="text-sm font-medium text-gray-700 mb-2 block">이름</Label>
+                  <Input
+                    id="name"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    placeholder="선수 이름을 입력하세요"
+                    className={`h-12 text-base ${validationErrors.name ? 'border-red-500' : ''}`}
+                    required
+                  />
+                  {validationErrors.name && (
+                    <p className="text-red-500 text-sm mt-1">{validationErrors.name}</p>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="age" className="text-sm font-medium text-gray-700 mb-2 block">출생년도</Label>
+                    <Input
+                      id="age"
+                      type="number"
+                      min="1970"
+                      max="2010"
+                      placeholder="YYYY"
+                      value={formData.age || ""}
+                      onChange={(e) => setFormData({ ...formData, age: e.target.value ? parseInt(e.target.value) : undefined })}
+                      className={`h-12 text-base ${validationErrors.age ? 'border-red-500' : ''}`}
+                      required
+                    />
+                    {validationErrors.age && (
+                      <p className="text-red-500 text-sm mt-1">{validationErrors.age}</p>
+                    )}
+                  </div>
+                  <div>
+                    <Label htmlFor="backNumber" className="text-sm font-medium text-gray-700 mb-2 block">백넘버</Label>
+                    <Input
+                      id="backNumber"
+                      type="number"
+                      min="1"
+                      max="99"
+                      value={formData.backNumber || ""}
+                      onChange={(e) => setFormData({ ...formData, backNumber: e.target.value ? parseInt(e.target.value) : undefined })}
+                      className={`h-12 text-base ${validationErrors.backNumber ? 'border-red-500' : ''}`}
+                      required
+                    />
+                    {validationErrors.backNumber && (
+                      <p className="text-red-500 text-sm mt-1">{validationErrors.backNumber}</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* 포지션 정보 섹션 */}
+          <Card className="border-0 shadow-lg">
+            <CardContent className="px-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                포지션 정보
+              </h3>
+              
+              <div className="space-y-4">
+                <div>
+                  <Label className="text-sm font-medium text-gray-700 mb-3 block">주 포지션</Label>
+                  <div className="grid grid-cols-2 gap-3">
+                    {positions.map((pos) => (
+                      <button
+                        key={pos}
+                        type="button"
+                        onClick={() => setFormData({ ...formData, mainPosition: pos })}
+                        className={`p-4 text-center rounded-lg border-2 transition-all ${
+                          formData.mainPosition === pos
+                            ? 'border-blue-500 bg-blue-50 text-blue-700 font-semibold'
+                            : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50'
+                        } ${validationErrors.mainPosition ? 'border-red-500' : ''}`}
+                      >
+                        {pos}
+                      </button>
+                    ))}
+                  </div>
+                  {validationErrors.mainPosition && (
+                    <p className="text-red-500 text-sm mt-1">{validationErrors.mainPosition}</p>
+                  )}
+                </div>
+
+
+                <div>
+                  <Label className="text-sm font-medium text-gray-700 mb-3 block">주 포지션 레벨</Label>
+                  <div className="grid grid-cols-2 gap-3">
+                    {levels.map((level) => (
+                      <button
+                        key={level}
+                        type="button"
+                        onClick={() => {
+                          setFormData({ 
+                            ...formData, 
+                            mainLevel: level as "프로" | "세미프로" | "아마추어" | "루키",
+                            subLevel: getSubLevel(level)
+                          });
+                        }}
+                        className={`p-4 text-center rounded-lg border-2 transition-all ${
+                          formData.mainLevel === level
+                            ? 'border-orange-500 bg-orange-50 text-orange-700 font-semibold'
+                            : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50'
+                        } ${validationErrors.mainLevel ? 'border-red-500' : ''}`}
+                      >
+                        {level}
+                      </button>
+                    ))}
+                  </div>
+                  {validationErrors.mainLevel && (
+                    <p className="text-red-500 text-sm mt-1">{validationErrors.mainLevel}</p>
+                  )}
+                </div>
+                
+                <div>
+                  <Label className="text-sm font-medium text-gray-700 mb-3 block">부 포지션 (다중 선택)</Label>
+                  <div className="grid grid-cols-2 gap-3">
+                    {positions.filter(pos => pos !== formData.mainPosition).map((pos) => (
+                      <button
+                        key={pos}
+                        type="button"
+                        onClick={() => {
+                          const isSelected = formData.subPosition?.includes(pos) || false;
+                          handleSubPositionChange(pos, !isSelected);
+                        }}
+                        className={`p-4 text-center rounded-lg border-2 transition-all ${
+                          formData.subPosition?.includes(pos)
+                            ? 'border-green-500 bg-green-50 text-green-700 font-semibold'
+                            : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50'
+                        }`}
+                      >
+                        {pos}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* 레벨 정보 섹션 */}
+          {/* <Card className="border-0 shadow-lg">
+            <CardContent className="p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                실력 레벨
+              </h3>
+              
+              <div className="grid grid-cols-1 gap-4">
+                <div>
+                  <Label className="text-sm font-medium text-gray-700 mb-2 block">부 포지션 레벨</Label>
+                  <div className="h-12 px-3 text-base border border-gray-300 rounded-md bg-gray-50 flex items-center text-gray-600">
+                    {formData.subLevel} (자동 설정)
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card> */}
+
+          {/* 버튼 영역 */}
+          <div className="flex gap-3 pt-4 pb-8">
+            {onCancel && (
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={onCancel} 
+                className="flex-1 h-14 text-base font-semibold border-2 hover:bg-gray-50"
+                disabled={isLoading}
+              >
+                취소
+              </Button>
+            )}
+            <Button 
+              type="submit" 
+              disabled={isLoading} 
+              className="flex-1 h-14 text-base font-bold bg-gradient-to-r from-slate-900 to-slate-800 hover:from-slate-800 hover:to-slate-700 shadow-lg"
             >
-              {levels.map((level) => (
-                <option key={level} value={level}>{level}</option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <Label htmlFor="subLevel">부 포지션 레벨 (1-5)</Label>
-            <Input
-              id="subLevel"
-              type="number"
-              min="1"
-              max="5"
-              value={formData.subLevel || ""}
-              onChange={(e) => setFormData({ ...formData, subLevel: e.target.value ? parseInt(e.target.value) : undefined })}
-            />
-          </div>
-        </div>
-
-        <div className="flex gap-2 pt-4">
-          {onCancel && (
-            <Button type="button" variant="outline" onClick={onCancel} className="flex-1">
-              취소
+              {isLoading ? (
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  추가 중...
+                </div>
+              ) : (
+                "팀원 추가"
+              )}
             </Button>
-          )}
-          <Button type="submit" disabled={isLoading} className="flex-1">
-            {isLoading ? "추가 중..." : "팀원 추가"}
-          </Button>
-        </div>
-      </form>
-    </Card>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 } 
