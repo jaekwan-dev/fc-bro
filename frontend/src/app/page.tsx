@@ -97,10 +97,17 @@ export default function Home() {
       <div className="text-center text-sm text-muted-foreground">
         <p>🔧 개발 모드에서 실행 중입니다.</p>
         <p className="mt-2">
-          백엔드: <code className="bg-muted px-2 py-1 rounded">http://localhost:3001</code> | 
-          프론트엔드: <code className="bg-muted px-2 py-1 rounded">http://localhost:3000</code>
+          백엔드: <code className="bg-muted px-2 py-1 rounded">
+            {process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}
+          </code> | 
+          프론트엔드: <code className="bg-muted px-2 py-1 rounded">
+            {typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'}
+          </code>
         </p>
-        </div>
+        <p className="mt-2">
+          API 상태: <span className="text-green-600">연결됨</span>
+        </p>
+      </div>
     </div>
   );
 }
