@@ -9,11 +9,23 @@ async function bootstrap() {
 
   // CORS 설정
   app.enableCors({
-    origin: true, // 모든 origin 허용 (개발 중)
-    credentials: true,
+    origin: [
+      'http://localhost:3000',
+      'https://fc-bro.vercel.app',
+      'https://fc-bro-frontend.vercel.app',
+      'https://fc-bro-git-main-fc-bro.vercel.app',
+      'https://fc-bro-git-dev-fc-bro.vercel.app',
+      process.env.FRONTEND_URL,
+    ].filter(Boolean),
+    credentials: false, // Vercel과 Render 간 통신에서는 false로 설정
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'Accept'],
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
   });
+
+  // 전역 prefix 설정
+  app.setGlobalPrefix('api');
 
   // 시드 데이터 삽입
   const membersSeedService = app.get(MembersSeedService);

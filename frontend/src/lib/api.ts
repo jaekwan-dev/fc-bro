@@ -52,8 +52,11 @@ class ApiClient {
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       headers: {
         'Content-Type': 'application/json',
+        Accept: 'application/json',
         ...options?.headers,
       },
+      mode: 'cors',
+      credentials: 'omit',
       ...options,
     });
 
