@@ -10,43 +10,46 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { MembersService } from './members.service';
-import { CreateMemberDto, UpdateMemberDto } from './member.entity';
+import { CreateMemberDto, UpdateMemberDto, Member } from '../database/schema';
 
 @Controller('api/members')
 export class MembersController {
   constructor(private readonly membersService: MembersService) {}
 
   @Post()
-  create(@Body() createMemberDto: CreateMemberDto) {
+  async create(@Body() createMemberDto: CreateMemberDto): Promise<Member> {
     try {
-      return this.membersService.create(createMemberDto);
+      return await this.membersService.create(createMemberDto);
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
   }
 
   @Get()
-  findAll() {
-    return this.membersService.findAll();
+  async findAll(): Promise<Member[]> {
+    return await this.membersService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.membersService.findOne(id);
+  async findOne(@Param('id') id: string): Promise<Member> {
+    return await this.membersService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateMemberDto: UpdateMemberDto) {
+  async update(
+    @Param('id') id: string,
+    @Body() updateMemberDto: UpdateMemberDto,
+  ): Promise<Member> {
     try {
-      return this.membersService.update(id, updateMemberDto);
+      return await this.membersService.update(id, updateMemberDto);
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    this.membersService.remove(id);
+  async remove(@Param('id') id: string): Promise<{ message: string }> {
+    await this.membersService.remove(id);
     return { message: 'Member deleted successfully' };
   }
-} 
+}

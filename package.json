@@ -20,7 +20,15 @@
     "backend",
     "frontend"
   ],
-  "keywords": ["nestjs", "nextjs", "fullstack", "typescript"],
+  "keywords": [
+    "nestjs",
+    "nextjs",
+    "fullstack",
+    "typescript"
+  ],
   "author": "",
-  "license": "MIT"
-} 
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^17.1.0"
+  }
+}

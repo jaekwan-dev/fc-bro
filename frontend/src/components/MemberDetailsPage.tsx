@@ -188,9 +188,16 @@ export function MemberDetailsPage({
                 </div>
 
                 <div>
-                  <div className="text-sm font-medium text-gray-700 mb-2">롤모델</div>
+                  <div className="text-sm font-medium text-gray-700 mb-2">좋아하는 선수</div>
                   <div className="h-12 px-3 text-base border border-gray-300 rounded-md bg-gray-50 flex items-center text-gray-900 font-medium">
-                    {member.roleModel || '정보 없음'}
+                    {member.favoritePlayer || '정보 없음'}
+                  </div>
+                </div>
+
+                <div>
+                  <div className="text-sm font-medium text-gray-700 mb-2">좋아하는 팀</div>
+                  <div className="h-12 px-3 text-base border border-gray-300 rounded-md bg-gray-50 flex items-center text-gray-900 font-medium">
+                    {member.favoriteTeam || '정보 없음'}
                   </div>
                 </div>
               </div>

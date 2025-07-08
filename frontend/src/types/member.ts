@@ -19,7 +19,8 @@ export interface Member {
   preferredFoot?: "오른발" | "왼발" | "양발"
   shoeSize?: number
   footballBoots?: string
-  roleModel?: string
+  favoritePlayer?: string
+  favoriteTeam?: string
   totalGames: number
   attendance: number
   profileUrl: string
@@ -38,6 +39,8 @@ export interface CreateMemberDto {
   subLevel?: number;
   preferredFoot?: "오른발" | "왼발" | "양발";
   profileUrl?: string;
+  favoritePlayer?: string;
+  favoriteTeam?: string;
 }
 
 export interface UpdateMemberDto {
@@ -52,7 +55,8 @@ export interface UpdateMemberDto {
   preferredFoot?: "오른발" | "왼발" | "양발";
   shoeSize?: number;
   footballBoots?: string;
-  roleModel?: string;
+  favoritePlayer?: string;
+  favoriteTeam?: string;
   profileUrl?: string;
   injuries?: Injury[];
 } 
