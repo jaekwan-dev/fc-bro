@@ -9,13 +9,10 @@ async function bootstrap() {
 
   // CORS 설정
   app.enableCors({
-    origin: [
-      'http://localhost:3000',
-      'https://fc-bro.vercel.app',
-      'https://fc-bro-frontend.vercel.app',
-      process.env.FRONTEND_URL,
-    ].filter(Boolean),
+    origin: true, // 모든 origin 허용 (개발 중)
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
   // 시드 데이터 삽입
